@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hukum Gravitasi Newton - Kelas X SMA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #030712;
+            overflow-x: hidden;
+        }
+        
+        .space-bg {
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #030712 100%);
+            background-attachment: fixed;
+        }
+
+        /* Orbit rotation animation */
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+        }
+
+        .moon-orbit-animation {
+            animation: orbit 12s linear infinite;
+        }
+
+        /* Twinkling Stars */
+        .star {
+            position: absolute;
+            background-color: #ffffff;
+            border-radius: 50%;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Glassmorphism utility */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Presentation Slide Navigation Active State */
+        .slide {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Apple falling simulation transition */
+        @keyframes fall {
+            0% { transform: translateY(-100px); opacity: 0; }
+            30% { opacity: 1; }
+            90% { transform: translateY(80px); }
+            95% { transform: translateY(75px) scaleY(0.9); }
+            100% { transform: translateY(80px) scaleY(1); }
+        }
+
+        .apple-falling {
+            animation: fall 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+    </style>
+</head>
+<body class="space-bg text-slate-100 min-h-screen flex flex-col justify-between relative overflow-hidden select-none">
+
+    <div id="starfield" class="absolute inset-0 pointer-events-none z-0"></div>
+
+    <header class="w-full py-4 px-6 md:px-12 flex justify-between items-center border-b border-white/5 bg-slate-950/40 backdrop-blur-md z-10">
+        <div class="flex items-center gap-3">
+            <span class="bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-bold px-3 py-1 rounded-full text-xs font-space tracking-wider">FISIKA KELAS X</span>
+            <h2 class="font-space font-bold tracking-wide text-white hidden md:block">Gaya Gravitasi Newton</h2>
+        </div>
+        <div class="flex items-center gap-4">
+            <!-- Indikator Slide Aktif -->
+            <div class="text-sm font-space text-slate-400 bg-slate-900/60 px-4 py-1.5 rounded-lg border border-white/5">
+                Slide <span id="current-slide-num" class="text-cyan-400 font-bold">1</span> / 8
+            </div>
+            <!-- Menu Pintasan Sidebar -->
+            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white bg-slate-900/60 p-2.5 rounded-lg border border-white/5 transition-colors">
+                <i class="fa-solid fa-list-ul"></i>
+            </button>
+            <!-- Tombol Layar Penuh -->
+            <button onclick="toggleFullscreen()" class="text-slate-400 hover:text-white bg-slate-900/60 p-2.5 rounded-lg border border-white/5 transition-colors">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+    </header>
+
+    <div id="sidebar" class="fixed right-0 top-0 h-full w-80 bg-slate-950/95 border-l border-white/10 p-6 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 backdrop-blur-lg">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="font-space font-bold text-lg text-white">Daftar Materi</h3>
+            <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <ul class="space-y-3 font-space">
+            <li><button onclick="goToSlide(1)" class="sidebar-btn w-full text-left p-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-cyan-400 border border-transparent transition-all flex items-center gap-3" data-slide="1"><span class="w-6 text-center text-xs">01</span> Judul Utama</button></li>
+            <li><button onclick="goToSlide(2)" class="sidebar-btn w-full text-left p-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-cyan-400 border border-transparent transition-all flex items-center gap-3" data-slide="2"><span class="w-6 text-center text-xs">02</span> Tujuan Pembelajaran</button></li>
+            <li><button onclick="goToSlide(3)" class="sidebar-btn w-full text-left p-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-cyan-400 border border-transparent transition-all flex items-center gap-3" data-slide="3"><span class="w-6 text-center text-xs">03</span> Rumus &amp; Definisi</button></li>
+            <li><button onclick="goToSlide(4)" class="sidebar-btn w-full text-left p-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-cyan-400 border border-transparent transition-all flex items-center gap-3" data-slide="4"><span class="w-6 text-center text-xs">04</span> Penerapan Kehidupan</button></li>
+            <li><button onclick="goToSlide(5)" class="sidebar-btn w-full text-left p-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-cyan-400 border border-transparent transition-all flex items-center gap-3" data-slide="5"><span class="w-6 text-center text-xs">05</span> Simulasi Orbit Interaktif</button></li>
+            <li><button onclick="goToSlide(6)" class="sidebar-btn w-full text-left p-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-cyan-400 border border-transparent transition-all flex items-center gap-3" data-slide="6"><span class="w-6 text-center text-xs">06</span> Kuis Misi Luar Angkasa</button></li>
+            <li><button onclick="goToSlide(7)" class="sidebar-btn w-full text-left p-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-cyan-400 border border-transparent transition-all flex items-center gap-3" data-slide="7"><span class="w-6 text-center text-xs">07</span> Tugas Proyek Infografis</button></li>
+            <li><button onclick="goToSlide(8)" class="sidebar-btn w-full text-left p-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-cyan-400 border border-transparent transition-all flex items-center gap-3" data-slide="8"><span class="w-6 text-center text-xs">08</span> Penutup &amp; Refleksi</button></li>
+        </ul>
+    </div>
+
+    <main class="flex-grow flex items-center justify-center p-4 md:p-8 z-10 w-full max-w-7xl mx-auto">
+        
+        <!-- ================= SLIDE 1: JUDUL UTAMA (Title Slide) ================= -->
+        <div id="slide-1" class="slide active flex-col lg:flex-row items-center gap-12 w-full justify-center">
+            <div class="flex-1 text-left space-y-6">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-semibold text-sm">
+                    <i class="fa-solid fa-graduation-cap"></i> Media Pembelajaran Interaktif
+                </div>
+                <h1 class="text-4xl md:text-6xl font-black font-space tracking-tight text-white leading-none">
+                    Hukum Gravitasi <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">Newton</span>
+                </h1>
+                <p class="text-lg text-slate-300 max-w-lg leading-relaxed">
+                    Menganalisis gaya tak terlihat yang merekatkan alam semesta, memicu orbit satelit, dan mengatur keteraturan benda langit.
+                </p>
+                <div class="p-4 rounded-xl glass-card inline-flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-lg">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest font-bold">Guru Pengampu</div>
+                        <div class="text-base font-bold text-white font-space">Oktaviyani Rosniadi Pratama, S.Pd</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Elemen Visual Bumi, Satelit, dan Tata Surya -->
+            <div class="flex-1 relative w-full aspect-square max-w-[450px] flex items-center justify-center">
+                <!-- Center Earth -->
+                <div class="relative w-44 h-44 rounded-full bg-blue-600 shadow-[0_0_50px_rgba(59,130,246,0.5)] flex items-center justify-center overflow-hidden border border-cyan-300/30">
+                    <!-- Bumi SVG Minimalis -->
+                    <svg viewBox="0 0 100 100" class="w-full h-full animate-[spin_20s_linear_infinite] opacity-80">
+                        <path d="M15 35c5 2 12-5 17-1 5 4 11 1 12 7s-4 12-1 16 9-2 13 4 1 11 6 13M50 5c3 5-1 12 5 16s15-2 15 5-10 11-5 16 12 1 15-5" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M40 70c4 4-2 10 3 14s12 1 14-4M10 50c5 5 12-1 15 4s-4 10 2 12" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+                    <!-- Atmosfer bersinar -->
+                    <div class="absolute inset-0 rounded-full border border-cyan-400/30 animate-pulse"></div>
+                </div>
+                
+                <!-- Satellite Orbiting -->
+                <div class="absolute inset-0 border border-dashed border-white/15 rounded-full animate-[spin_15s_linear_infinite]">
+                    <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-cyan-400 transform hover:scale-125 transition-transform cursor-pointer">
+                        <!-- Satelit SVG -->
+                        <svg viewBox="0 0 24 24" class="w-12 h-12 fill-current">
+                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6V10H16V6H12M8,11V13H16V11H8M12,14V18H16V14H12Z" />
+                        </svg>
+                        <div class="absolute top-10 left-1/2 -translate-x-1/2 bg-slate-900 border border-white/10 px-2 py-0.5 rounded text-[8px] text-white whitespace-nowrap">Satelit LEO</div>
+                    </div>
+                </div>
+                
+                <!-- Orbit Planet Terluar (Simulasi Tata Surya) -->
+                <div class="absolute w-[120%] h-[120%] border border-dashed border-white/5 rounded-full animate-[spin_40s_linear_infinite]">
+                    <div class="absolute -top-4 right-1/4 w-8 h-8 rounded-full bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.4)] flex items-center justify-center text-[10px] text-black font-bold">Mars</div>
+                    <div class="absolute -bottom-4 left-1/4 w-10 h-10 rounded-full bg-orange-400 shadow-[0_0_20px_rgba(251,146,60,0.4)] flex items-center justify-center text-[10px] text-black font-bold">Yupiter</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SLIDE 2: TUJUAN PEMBELAJARAN ================= -->
+        <div id="slide-2" class="slide flex-col w-full">
+            <div class="text-center max-w-2xl mx-auto mb-8">
+                <div class="inline-block text-cyan-400 font-bold font-space text-xs tracking-widest uppercase mb-2">Kompetensi Inti &amp; Dasar</div>
+                <h2 class="text-3xl md:text-4xl font-bold font-space text-white">Tujuan Pembelajaran</h2>
+                <p class="text-slate-400 text-sm mt-1">Langkah petualangan ilmiah kita hari ini untuk menguasai materi gravitasi.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full items-stretch">
+                <!-- Tujuan 1 -->
+                <div class="glass-card p-8 rounded-2xl border-t-4 border-t-cyan-500 flex flex-col justify-between hover:translate-y-[-4px] transition-all">
+                    <div>
+                        <div class="w-12 h-12 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-space font-bold rounded-xl flex items-center justify-center text-xl mb-6">01</div>
+                        <h3 class="text-xl font-bold font-space text-white mb-3">Memahami Gaya Gravitasi</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Mampu <strong>menjelaskan konsep Gaya Gravitasi Newton</strong> pada suatu benda yang saling berinteraksi secara teoretis maupun visual.
+                        </p>
+                    </div>
+                    <div class="mt-6 flex items-center gap-2 text-cyan-400 text-xs font-semibold">
+                        <i class="fa-solid fa-circle-check"></i> Pemahaman Konseptual
+                    </div>
+                </div>
+
+                <!-- Tujuan 2 -->
+                <div class="glass-card p-8 rounded-2xl border-t-4 border-t-indigo-500 flex flex-col justify-between hover:translate-y-[-4px] transition-all">
+                    <div>
+                        <div class="w-12 h-12 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-space font-bold rounded-xl flex items-center justify-center text-xl mb-6">02</div>
+                        <h3 class="text-xl font-bold font-space text-white mb-3">Analisis Variabel Fisika</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Mampu <strong>menganalisis pengaruh variabel massa dan jarak</strong> terhadap kuat lemahnya interaksi gaya gravitasi dua benda.
+                        </p>
+                    </div>
+                    <div class="mt-6 flex items-center gap-2 text-indigo-400 text-xs font-semibold">
+                        <i class="fa-solid fa-compass"></i> Pendekatan Analitis
+                    </div>
+                </div>
+
+                <!-- Tujuan 3 -->
+                <div class="glass-card p-8 rounded-2xl border-t-4 border-t-purple-500 flex flex-col justify-between hover:translate-y-[-4px] transition-all">
+                    <div>
+                        <div class="w-12 h-12 bg-purple-500/10 border border-purple-500/20 text-purple-400 font-space font-bold rounded-xl flex items-center justify-center text-xl mb-6">03</div>
+                        <h3 class="text-xl font-bold font-space text-white mb-3">Karya Kreatif "Life Without Gravity"</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Mampu <strong>menyajikan karya dampak kehidupan tanpa gravitasi</strong> berupa poster atau infografis dari berbagai sumber rujukan ilmiah.
+                        </p>
+                    </div>
+                    <div class="mt-6 flex items-center gap-2 text-purple-400 text-xs font-semibold">
+                        <i class="fa-solid fa-palette"></i> Implementasi Kreatif &amp; Kolaboratif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SLIDE 3: RUMUS DAN DEFINISI ================= -->
+        <div id="slide-3" class="slide flex-col w-full">
+            <div class="text-center mb-8">
+                <span class="text-cyan-400 font-bold font-space text-xs tracking-widest uppercase">Teori &amp; Formulasi</span>
+                <h2 class="text-3xl md:text-4xl font-bold font-space text-white">Hukum Gravitasi Universal Newton</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
+                <!-- Sisi Kiri: Definisi dan Penjelasan -->
+                <div class="lg:col-span-7 flex flex-col justify-center space-y-6">
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold font-space text-cyan-400 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-quote-left"></i> Bunyi Hukum Gravitasi Newton
+                        </h3>
+                        <p class="text-slate-300 leading-relaxed text-sm md:text-base">
+                            "Setiap partikel di alam semesta ini saling tarik-menarik dengan partikel lain. Besarnya gaya tarik ini berbanding lurus dengan perkalian massa kedua benda, dan berbanding terbalik dengan kuadrat jarak antara pusat massa kedua benda tersebut."
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-900/40 border border-white/5 p-4 rounded-xl text-center">
+                            <div class="text-xs text-slate-400">Gaya Tarik (F)</div>
+                            <div class="text-xl font-bold text-white font-space">Newton (N)</div>
+                        </div>
+                        <div class="bg-slate-900/40 border border-white/5 p-4 rounded-xl text-center">
+                            <div class="text-xs text-slate-400">Massa Benda (m)</div>
+                            <div class="text-xl font-bold text-white font-space">Kilogram (kg)</div>
+                        </div>
+                        <div class="bg-slate-900/40 border border-white/5 p-4 rounded-xl text-center">
+                            <div class="text-xs text-slate-400">Jarak Pusat (r)</div>
+                            <div class="text-xl font-bold text-white font-space">Meter (m)</div>
+                        </div>
+                        <div class="bg-slate-900/40 border border-white/5 p-4 rounded-xl text-center">
+                            <div class="text-xs text-slate-400">Konstanta (G)</div>
+                            <div class="text-sm font-bold text-cyan-400 font-space mt-1">6.674 × 10<sup>-11</sup></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sisi Kanan: Tampilan Rumus Interaktif -->
+                <div class="lg:col-span-5 flex items-center justify-center">
+                    <div class="glass-card p-8 rounded-3xl w-full border border-cyan-500/20 shadow-[0_0_50px_rgba(6,182,212,0.1)] flex flex-col items-center justify-center text-center relative overflow-hidden">
+                        <div class="absolute top-0 left-0 bg-cyan-500/20 text-cyan-300 font-space px-4 py-1 rounded-br-2xl text-xs font-semibold">Persamaan Utama</div>
+                        
+                        <!-- Representasi Matematika Dinamis -->
+                        <div class="my-8 scale-110">
+                            <math display="block" class="text-white text-4xl font-space">
+                                <mi class="text-cyan-400 font-bold">F</mi>
+                                <mo class="text-slate-400">=</mo>
+                                <mi class="text-amber-400 font-bold">G</mi>
+                                <mfrac>
+                                    <mrow>
+                                        <msub><mi class="text-emerald-400 font-bold">m</mi><mn class="text-emerald-400 text-xs">1</mn></msub>
+                                        <mo class="text-slate-400">&middot;</mo>
+                                        <msub><mi class="text-emerald-400 font-bold">m</mi><mn class="text-emerald-400 text-xs">2</mn></msub>
+                                    </mrow>
+                                    <msup>
+                                        <mi class="text-rose-400 font-bold">r</mi>
+                                        <mn class="text-rose-400 text-xs">2</mn>
+                                    </msup>
+                                </mfrac>
+                            </math>
+                        </div>
+                        
+                        <!-- Interaktif Highlight Variabel -->
+                        <div class="w-full text-left space-y-2 border-t border-white/10 pt-4 mt-2">
+                            <p class="text-xs text-slate-400"><span class="inline-block w-3 h-3 bg-cyan-400 rounded-sm mr-2"></span><strong>F</strong> = Gaya gravitasi antara m1 dan m2 (N)</p>
+                            <p class="text-xs text-slate-400"><span class="inline-block w-3 h-3 bg-amber-400 rounded-sm mr-2"></span><strong>G</strong> = Konstanta Gravitasi Universal (6.674 &times; 10<sup>-11</sup> N&middot;m²/kg²)</p>
+                            <p class="text-xs text-slate-400"><span class="inline-block w-3 h-3 bg-emerald-400 rounded-sm mr-2"></span><strong>m₁, m₂</strong> = Massa masing-masing partikel benda (kg)</p>
+                            <p class="text-xs text-slate-400"><span class="inline-block w-3 h-3 bg-rose-400 rounded-sm mr-2"></span><strong>r</strong> = Jarak antara pusat massa kedua partikel (m)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SLIDE 4: CONTOH PENERAPAN DI KEHIDUPAN (Phenomena) ================= -->
+        <div id="slide-4" class="slide flex-col w-full">
+            <div class="text-center mb-6">
+                <span class="text-cyan-400 font-bold font-space text-xs tracking-widest uppercase">Fenomena Alam Semesta</span>
+                <h2 class="text-3xl md:text-4xl font-bold font-space text-white">Gravitasi dalam Kehidupan Sehari-hari</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                <!-- Fenomena 1: Apel Jatuh (Interaktif Click to Drop) -->
+                <div class="glass-card p-6 rounded-2xl flex flex-col justify-between items-center text-center group">
+                    <div class="w-full">
+                        <div class="h-44 w-full bg-slate-900/60 rounded-xl relative overflow-hidden flex items-center justify-center border border-white/5">
+                            <!-- Background Pohon Sederhana -->
+                            <div class="absolute top-2 w-28 h-6 bg-emerald-800/40 rounded-full blur-md"></div>
+                            <!-- Apple Element -->
+                            <div id="interactive-apple" class="absolute cursor-pointer text-4xl hover:scale-110 transition-transform" style="transform: translateY(-40px);" onclick="simulateAppleFall()">
+                                🍎
+                            </div>
+                            <span class="absolute bottom-2 text-[10px] text-slate-500 font-semibold uppercase">Klik Apel Untuk Menjatuhkannya!</span>
+                        </div>
+                        <h3 class="text-lg font-bold font-space text-white mt-4 mb-2">Simulasi Apel Jatuh</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Membuktikan gaya tarik bumi (Gaya Tarik Gravitasi) yang selalu mengarah ke pusat bumi, membuat setiap massa tak bertumpu jatuh bebas ke bawah.
+                        </p>
+                    </div>
+                    <button onclick="simulateAppleFall()" class="mt-4 px-4 py-1.5 rounded-lg bg-red-600/20 border border-red-500/30 text-red-300 text-xs font-bold hover:bg-red-600/30 transition-all">Jatuhkan Lagi</button>
+                </div>
+
+                <!-- Fenomena 2: Bulan Mengorbit Bumi (Animasi Orbit) -->
+                <div class="glass-card p-6 rounded-2xl flex flex-col justify-between items-center text-center">
+                    <div class="w-full">
+                        <div class="h-44 w-full bg-slate-900/60 rounded-xl relative overflow-hidden flex items-center justify-center border border-white/5">
+                            <!-- Earth Center -->
+                            <div class="w-12 h-12 rounded-full bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)] z-10 flex items-center justify-center text-sm">🌍</div>
+                            <!-- Moon Orbit Line -->
+                            <div class="absolute w-[140px] h-[140px] border border-dashed border-white/10 rounded-full"></div>
+                            <!-- Moon -->
+                            <div class="absolute moon-orbit-animation text-lg">🌕</div>
+                        </div>
+                        <h3 class="text-lg font-bold font-space text-white mt-4 mb-2">Bulan Mengorbit Bumi</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Gaya gravitasi bumi bekerja sebagai <strong>Gaya Sentripetal</strong> yang mempertahankan bulan pada jalurnya agar tidak terlepas ke luar angkasa.
+                        </p>
+                    </div>
+                    <div class="mt-4 px-4 py-1.5 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 text-xs font-bold font-space">Gerakan Sentripetal</div>
+                </div>
+
+                <!-- Fenomena 3: Jenis-Jenis Satelit -->
+                <div class="glass-card p-6 rounded-2xl flex flex-col justify-between items-center text-center">
+                    <div class="w-full">
+                        <div id="satellite-screen" class="h-44 w-full bg-slate-900/60 rounded-xl relative overflow-hidden flex flex-col items-center justify-center border border-white/5 p-4">
+                            <!-- Tampilan Satelit Bergantian -->
+                            <div id="sat-info-1" class="sat-item space-y-2">
+                                <div class="text-3xl text-cyan-400"><i class="fa-solid fa-satellite-dish"></i></div>
+                                <div class="text-xs font-bold font-space text-white">Satelit Komunikasi</div>
+                                <div class="text-[10px] text-slate-400">GEO (35.786 Km) • Memancarkan sinyal TV, Radio, &amp; internet konvensional secara stabil.</div>
+                            </div>
+                            <div id="sat-info-2" class="sat-item space-y-2 hidden">
+                                <div class="text-3xl text-emerald-400"><i class="fa-solid fa-location-dot"></i></div>
+                                <div class="text-xs font-bold font-space text-white">Satelit GPS / Navigasi</div>
+                                <div class="text-[10px] text-slate-400">MEO (20.200 Km) • Menentukan koordinat lokasi pengguna di seluruh permukaan Bumi secara presisi.</div>
+                            </div>
+                            <div id="sat-info-3" class="sat-item space-y-2 hidden">
+                                <div class="text-3xl text-amber-400"><i class="fa-solid fa-cloud-sun-rain"></i></div>
+                                <div class="text-xs font-bold font-space text-white">Satelit Cuaca</div>
+                                <div class="text-[10px] text-slate-400">LEO (600 Km) • Mengamati pola awan, siklon, suhu atmosfer, dan prakiraan iklim ekstrim.</div>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-bold font-space text-white mt-4 mb-2">Aplikasi Satelit Modern</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Massa satelit yang dimasukkan ke ketinggian orbit tertentu akan seimbang oleh percepatan gravitasi untuk kebutuhan masa kini.
+                        </p>
+                    </div>
+                    <!-- Switch Satelit Controls -->
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="switchSatInfo(1)" class="w-6 h-6 rounded bg-cyan-600/30 text-white border border-cyan-500/30 text-xs flex items-center justify-center hover:bg-cyan-600/50 transition-all">1</button>
+                        <button onclick="switchSatInfo(2)" class="w-6 h-6 rounded bg-emerald-600/30 text-white border border-emerald-500/30 text-xs flex items-center justify-center hover:bg-emerald-600/50 transition-all">2</button>
+                        <button onclick="switchSatInfo(3)" class="w-6 h-6 rounded bg-amber-600/30 text-white border border-amber-500/30 text-xs flex items-center justify-center hover:bg-amber-600/50 transition-all">3</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SLIDE 5: SIMULASI ORBIT INTERAKTIF (HTML5 Canvas Experiment) ================= -->
+        <div id="slide-5" class="slide flex-col w-full">
+            <div class="text-center mb-4">
+                <span class="text-cyan-400 font-bold font-space text-xs tracking-widest uppercase">Eksperimen Laboratorium Fisika Virtual</span>
+                <h2 class="text-2xl md:text-3xl font-bold font-space text-white">Simulasi Orbit Satelit &amp; Gaya Gravitasi</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-stretch">
+                <!-- Sisi Kiri: Panel Kontrol Sliders -->
+                <div class="lg:col-span-4 flex flex-col justify-between gap-4 glass-card p-5 rounded-2xl border border-white/5">
+                    <h3 class="font-space font-bold text-white border-b border-white/10 pb-2 flex items-center gap-2 text-sm md:text-base">
+                        <i class="fa-solid fa-sliders text-cyan-400"></i> Kontrol Variabel
+                    </h3>
+                    
+                    <!-- Slider 1: Massa Bumi -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-300">Massa Bumi (M)</span>
+                            <span id="mass-val" class="text-cyan-400 font-space font-bold">1.0 &times; M<sub>e</sub></span>
+                        </div>
+                        <input id="sim-mass" type="range" min="0.5" max="3" step="0.1" value="1.0" oninput="updateSimParams()" class="w-full accent-cyan-400 h-1 bg-slate-950 rounded-lg appearance-none cursor-pointer">
+                        <div class="text-[10px] text-slate-500 leading-none">Makin besar massa bumi, makin kuat gaya gravitasi yang dihasilkan.</div>
+                    </div>
+                    
+                    <!-- Slider 2: Jarak Orbit -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-300">Jarak Orbit Awal (r)</span>
+                            <span id="dist-val" class="text-emerald-400 font-space font-bold">120 km</span>
+                        </div>
+                        <input id="sim-dist" type="range" min="60" max="180" step="5" value="120" oninput="updateSimParams()" class="w-full accent-emerald-400 h-1 bg-slate-950 rounded-lg appearance-none cursor-pointer">
+                        <div class="text-[10px] text-slate-500 leading-none">Mempengaruhi besarnya r² pada penyebut hukum gravitasi.</div>
+                    </div>
+                    
+                    <!-- Slider 3: Kecepatan Satelit -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-300">Kecepatan Peluncuran (v)</span>
+                            <span id="speed-val" class="text-amber-400 font-space font-bold">5.0 km/s</span>
+                        </div>
+                        <input id="sim-speed" type="range" min="1.0" max="8.0" step="0.2" value="5.0" oninput="updateSimParams()" class="w-full accent-amber-400 h-1 bg-slate-950 rounded-lg appearance-none cursor-pointer">
+                        <div class="text-[10px] text-slate-500 leading-none">Kecepatan pas membuat lintasan bulat, kurang memicu jatuhnya satelit.</div>
+                    </div>
+                    
+                    <!-- Kontrol Aksi -->
+                    <div class="grid grid-cols-2 gap-3 pt-2">
+                        <button onclick="launchSatellite()" class="px-3 py-2 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:opacity-90 font-bold font-space rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all text-white">
+                            <i class="fa-solid fa-rocket animate-bounce"></i> Luncurkan
+                        </button>
+                        <button onclick="resetSim()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 font-bold font-space border border-white/10 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all text-slate-300">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> Reset
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Sisi Kanan: Canvas Simulator -->
+                <div class="lg:col-span-8 flex flex-col bg-slate-950 border border-white/5 rounded-2xl overflow-hidden relative min-h-[300px] lg:min-h-full">
+                    <!-- Status Display -->
+                    <div class="absolute top-3 left-3 bg-slate-900/80 border border-white/10 p-2.5 rounded-lg text-xs space-y-1 z-10 font-space">
+                        <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Bumi: Aktif</div>
+                        <div class="flex items-center gap-2"><span id="sat-status-dot" class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span> Satelit: <span id="sat-status-text" class="text-red-400 font-semibold">Belum Meluncur</span></div>
+                    </div>
+                    
+                    <!-- Simulasi Canvas -->
+                    <canvas id="simCanvas" class="w-full h-full block bg-slate-950 cursor-crosshair"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SLIDE 6: INTERACTIVE TRIVIA GAME (Kuis Interaktif) ================= -->
+        <div id="slide-6" class="slide flex-col w-full">
+            <div class="text-center mb-6">
+                <span class="text-cyan-400 font-bold font-space text-xs tracking-widest uppercase">Uji Kompetensi Seru</span>
+                <h2 class="text-3xl font-bold font-space text-white">Kuis Misi Orbit Antariksa</h2>
+            </div>
+            
+            <div id="quiz-container" class="glass-card max-w-2xl mx-auto w-full p-8 rounded-3xl border border-cyan-500/20 relative overflow-hidden flex flex-col justify-between min-h-[400px]">
+                
+                <!-- Splash / Start Game Screen -->
+                <div id="quiz-start-screen" class="flex flex-col items-center justify-center text-center space-y-6">
+                    <div class="text-5xl animate-bounce">🚀</div>
+                    <h3 class="text-2xl font-bold font-space text-white">Misi Peluncuran Roket Satelit</h3>
+                    <p class="text-slate-300 text-sm max-w-md">
+                        Bantu kapten Oktaviyani mengorbitkan satelit telekomunikasi nasional secara stabil dengan menjawab 3 pertanyaan tentang gaya gravitasi!
+                    </p>
+                    <button onclick="startQuiz()" class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-indigo-500 hover:opacity-90 text-white font-bold font-space rounded-2xl text-sm transition-all shadow-[0_0_30px_rgba(6,182,212,0.3)]">
+                        Mulai Misi Peluncuran!
+                    </button>
+                </div>
+
+                <!-- Active Question Screen -->
+                <div id="quiz-active-screen" class="hidden space-y-6">
+                    <div class="flex justify-between items-center text-xs border-b border-white/10 pb-3 font-space">
+                        <span class="text-slate-400">Pertanyaan Ke: <span id="quiz-index" class="text-cyan-400 font-bold">1</span> / 3</span>
+                        <span class="text-emerald-400 font-bold">Bahan Bakar: <span id="quiz-fuel">100%</span></span>
+                    </div>
+                    
+                    <h4 id="quiz-question" class="text-lg md:text-xl font-bold text-white font-space leading-relaxed">
+                        Jika jarak antara dua benda bermassa dilipatgandakan menjadi 2 kali lipat dari jarak semula, gaya gravitasinya berubah menjadi...
+                    </h4>
+                    
+                    <!-- Pilihan Ganda -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button onclick="selectAnswer(0)" id="opt-0" class="quiz-opt-btn p-4 rounded-xl border border-white/10 hover:border-cyan-400 hover:bg-cyan-500/5 text-left text-sm text-slate-200 transition-all font-semibold flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold text-xs">A</span>
+                            <span id="text-opt-0">2 kali lipat semula</span>
+                        </button>
+                        <button onclick="selectAnswer(1)" id="opt-1" class="quiz-opt-btn p-4 rounded-xl border border-white/10 hover:border-cyan-400 hover:bg-cyan-500/5 text-left text-sm text-slate-200 transition-all font-semibold flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold text-xs">B</span>
+                            <span id="text-opt-1">4 kali lipat semula</span>
+                        </button>
+                        <button onclick="selectAnswer(2)" id="opt-2" class="quiz-opt-btn p-4 rounded-xl border border-white/10 hover:border-cyan-400 hover:bg-cyan-500/5 text-left text-sm text-slate-200 transition-all font-semibold flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold text-xs">C</span>
+                            <span id="text-opt-2">1/2 kali lipat semula</span>
+                        </button>
+                        <button onclick="selectAnswer(3)" id="opt-3" class="quiz-opt-btn p-4 rounded-xl border border-white/10 hover:border-cyan-400 hover:bg-cyan-500/5 text-left text-sm text-slate-200 transition-all font-semibold flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-lg bg-slate-900 border border-white/10 flex items-center justify-center font-bold text-xs">D</span>
+                            <span id="text-opt-3">1/4 kali lipat semula</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Result Screen -->
+                <div id="quiz-result-screen" class="hidden flex flex-col items-center justify-center text-center space-y-6">
+                    <div id="quiz-result-icon" class="text-6xl">🏆</div>
+                    <h3 id="quiz-result-title" class="text-2xl font-bold font-space text-white">Misi Sukses Sempurna!</h3>
+                    <p id="quiz-result-desc" class="text-slate-300 text-sm max-w-md">
+                        Satelit Anda berhasil mengorbit dengan aman di atas koordinat geografis khatulistiwa.
+                    </p>
+                    <div class="px-6 py-2 rounded-full bg-slate-900 border border-white/10 text-cyan-400 font-space font-bold">
+                        Skor Misi: <span id="quiz-score">100 / 100</span>
+                    </div>
+                    <button onclick="resetQuiz()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold font-space border border-white/10 rounded-2xl text-sm transition-all">
+                        Coba Misi Kembali
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SLIDE 7: TUGAS PROYEK (Life Without Gravity) ================= -->
+        <div id="slide-7" class="slide flex-col w-full">
+            <div class="text-center mb-6">
+                <span class="text-cyan-400 font-bold font-space text-xs tracking-widest uppercase">Tugas Proyek Kolaboratif</span>
+                <h2 class="text-3xl font-bold font-space text-white">Proyek Kelompok: Life Without Gravity</h2>
+                <p class="text-slate-400 text-sm mt-1">Mengembangkan berpikir kritis &amp; kreativitas melalui eksplorasi ilmiah.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full items-stretch">
+                <!-- Brief Tugas Sisi Kiri -->
+                <div class="glass-card p-8 rounded-2xl border-l-4 border-l-purple-500 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <span class="px-3 py-1 rounded bg-purple-500/10 text-purple-400 text-xs font-semibold">Tugas Portofolio</span>
+                        <h3 class="text-2xl font-bold font-space text-white">Membuat Poster/Infografis Digital</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Secara berkelompok (3-4 orang), rancanglah sebuah infografis atau poster digital bertema: <br>
+                            <span class="text-cyan-300 font-bold">"Life Without Gravity: Kehidupan Manusia &amp; Alam Semesta Tanpa Gaya Gravitasi"</span>.
+                        </p>
+                        <p class="text-slate-400 text-xs">
+                            Hubungkan karya kalian dengan materi teknologi satelit modern yang sudah kita pelajari hari ini.
+                        </p>
+                    </div>
+                    
+                    <div class="border-t border-white/10 pt-4 mt-6">
+                        <div class="text-xs text-slate-400 mb-2">Platform Pembuatan Rekomendasi:</div>
+                        <div class="flex gap-4">
+                            <span class="bg-slate-900 px-3 py-1.5 rounded-lg border border-white/5 text-xs text-white"><i class="fa-solid fa-palette text-cyan-400 mr-2"></i> Canva</span>
+                            <span class="bg-slate-900 px-3 py-1.5 rounded-lg border border-white/5 text-xs text-white"><i class="fa-solid fa-file-powerpoint text-amber-400 mr-2"></i> PowerPoint</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Indikator Penilaian Sisi Kanan -->
+                <div class="glass-card p-8 rounded-2xl flex flex-col justify-between">
+                    <h3 class="text-xl font-bold font-space text-white border-b border-white/10 pb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-cyan-400"></i> Kriteria Penilaian (Rubrik)
+                    </h3>
+                    
+                    <ul class="space-y-4 my-6">
+                        <li class="flex gap-3">
+                            <span class="w-6 h-6 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0">1</span>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Keakuratan Konsep Fisika (40%)</h4>
+                                <p class="text-xs text-slate-400">Penjelasan dampak ketiadaan gravitasi sesuai dengan hukum-hukum gerak dan astrofisika.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-6 h-6 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs shrink-0">2</span>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Estetika &amp; Desain Visual (30%)</h4>
+                                <p class="text-xs text-slate-400">Kombinasi warna yang kontras, keterbacaan teks, kerapian, serta pemilihan elemen grafik/ilustrasi.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-6 h-6 rounded bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs shrink-0">3</span>
+                            <div>
+                                <h4 class="text-sm font-bold text-white">Keragaman Sumber Referensi (30%)</h4>
+                                <p class="text-xs text-slate-400">Mencantumkan setidaknya 3 referensi buku/jurnal/sumber internet kredibel di bagian bawah poster.</p>
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <div class="text-xs text-center text-slate-500 italic">Batas Pengumpulan: Pertemuan Berikutnya di Google Classroom</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SLIDE 8: CLOSING / ANY QUESTIONS ================= -->
+        <div id="slide-8" class="slide flex-col items-center justify-center text-center w-full max-w-2xl mx-auto space-y-6">
+            <div class="text-6xl animate-pulse">🛸</div>
+            <h1 class="text-5xl md:text-6xl font-black font-space tracking-tight text-white leading-none">
+                Ada Pertanyaan?
+            </h1>
+            <p class="text-lg text-slate-300 max-w-lg leading-relaxed mx-auto">
+                "Imajinasi lebih penting daripada pengetahuan. Pengetahuan terbatas, sedangkan imajinasi merangkum seluruh dunia."
+            </p>
+            <div class="text-cyan-400 font-bold font-space text-sm">— Albert Einstein</div>
+            
+            <div class="pt-6 border-t border-white/10 w-full max-w-md flex flex-col md:flex-row gap-4 justify-center items-center text-slate-400 text-xs">
+                <div class="flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-cyan-400"></i> Kelas X SMA • Fisika</div>
+                <div class="hidden md:block text-white/20">|</div>
+                <div class="flex items-center gap-2"><i class="fa-solid fa-user-tie text-indigo-400"></i> Oktaviyani Rosniadi Pratama, S.Pd</div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full py-4 px-6 md:px-12 border-t border-white/5 bg-slate-950/60 backdrop-blur-md flex flex-col md:flex-row justify-between items-center gap-4 z-10">
+        <!-- Slide Progress Bar -->
+        <div class="w-full md:w-1/3 bg-slate-900 h-1.5 rounded-full overflow-hidden border border-white/5">
+            <div id="slide-progress" class="bg-gradient-to-r from-cyan-400 to-indigo-400 h-full w-[12.5%] transition-all duration-300"></div>
+        </div>
+        
+        <!-- Controls Buttons -->
+        <div class="flex items-center gap-4">
+            <button onclick="prevSlide()" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-white/10 font-bold font-space text-sm text-slate-300 hover:text-white transition-all flex items-center gap-2 disabled:opacity-30 disabled:pointer-events-none" id="prev-btn">
+                <i class="fa-solid fa-chevron-left"></i> SEBELUMNYA
+            </button>
+            <button onclick="nextSlide()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-500 hover:opacity-90 font-bold font-space text-sm text-white transition-all flex items-center gap-2 disabled:opacity-30 disabled:pointer-events-none" id="next-btn">
+                BERIKUTNYA <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <div class="text-slate-500 text-[10px] uppercase font-space tracking-widest hidden md:block">
+            Gunakan tombol panah keyboard ← / →
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. STATE PRESENTASI ---
+        let currentSlide = 1;
+        const totalSlides = 8;
+
+        // --- 2. SISTEM GENERASI BINTANG LATAR BELAKANG ---
+        function createStars() {
+            const field = document.getElementById('starfield');
+            field.innerHTML = '';
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const starCount = Math.floor((screenWidth * screenHeight) / 12000); // Kepadatan adaptif
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = Math.random() * 2 + 1 + 's';
+                field.appendChild(star);
+            }
+        }
+
+        // --- 3. NAVIGASI PRESENTASI ---
+        function updateSlideUI() {
+            // Update Tampilan Slide Utama
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            const activeSlide = document.getElementById(`slide-${currentSlide}`);
+            if (activeSlide) activeSlide.classList.add('active');
+
+            // Update Metadata Header & Footer
+            document.getElementById('current-slide-num').innerText = currentSlide;
+            
+            const progressPercent = (currentSlide / totalSlides) * 100;
+            document.getElementById('slide-progress').style.width = `${progressPercent}%`;
+
+            // Atur Disabled Button
+            document.getElementById('prev-btn').disabled = (currentSlide === 1);
+            document.getElementById('next-btn').disabled = (currentSlide === totalSlides);
+
+            // Update Status Sidebar Aktif
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                if (parseInt(btn.getAttribute('data-slide')) === currentSlide) {
+                    btn.classList.add('border-cyan-500', 'bg-white/10', 'text-cyan-400');
+                } else {
+                    btn.classList.remove('border-cyan-500', 'bg-white/10', 'text-cyan-400');
+                }
+            });
+
+            // Jalankan / Hentikan Canvas Simulator Orbit demi Performa
+            if (currentSlide === 5) {
+                initSimulation();
+            } else {
+                stopSimulation();
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlideUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlideUI();
+            }
+        }
+
+        function goToSlide(slideNum) {
+            currentSlide = slideNum;
+            updateSlideUI();
+            toggleSidebar(false); // Tutup sidebar setelah memilih
+        }
+
+        function toggleSidebar(forceState) {
+            const sidebar = document.getElementById('sidebar');
+            if (forceState !== undefined) {
+                if (forceState) sidebar.classList.remove('translate-x-full');
+                else sidebar.classList.add('translate-x-full');
+            } else {
+                sidebar.classList.toggle('translate-x-full');
+            }
+        }
+
+        // Fullscreen Toggle
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Gagal mengaktifkan mode layar penuh: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Keyboard Arrow Listener
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Touch Navigation (Swipe)
+        let touchstartX = 0;
+        let touchendX = 0;
+        
+        document.addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            handleGesture();
+        });
+
+        function handleGesture() {
+            if (touchendX < touchstartX - 50) nextSlide(); // Swipe Left -> Next
+            if (touchendX > touchstartX + 50) prevSlide(); // Swipe Right -> Prev
+        }
+
+
+        // --- 4. ANIMASI INTERAKTIF APEL JATUH (Slide 4) ---
+        function simulateAppleFall() {
+            const apple = document.getElementById('interactive-apple');
+            apple.classList.remove('apple-falling');
+            // Memicu reflow browser agar animasi bisa direset ulang
+            void apple.offsetWidth; 
+            apple.classList.add('apple-falling');
+        }
+
+
+        // --- 5. FUNGSI SWITCH DETAIL SATELIT (Slide 4) ---
+        function switchSatInfo(id) {
+            document.querySelectorAll('.sat-item').forEach(item => item.classList.add('hidden'));
+            document.getElementById(`sat-info-${id}`).classList.remove('hidden');
+        }
+
+
+        // --- 6. SIMULATOR ORBIT SATELIT REAL-TIME (Slide 5) ---
+        let canvas, ctx;
+        let animId = null;
+        
+        // Konstanta Simulasi Ringkas
+        let simVars = {
+            earthMass: 1.0,
+            launchDistance: 120,
+            launchVelocity: 5.0,
+            satelliteX: 0,
+            satelliteY: 0,
+            satVx: 0,
+            satVy: 0,
+            isLaunched: false,
+            trail: []
+        };
+
+        function updateSimParams() {
+            simVars.earthMass = parseFloat(document.getElementById('sim-mass').value);
+            simVars.launchDistance = parseInt(document.getElementById('sim-dist').value);
+            simVars.launchVelocity = parseFloat(document.getElementById('sim-speed').value);
+
+            // Update Text Label
+            document.getElementById('mass-val').innerHTML = `${simVars.earthMass.toFixed(1)} &times; M<sub>e</sub>`;
+            document.getElementById('dist-val').innerText = `${simVars.launchDistance} km`;
+            document.getElementById('speed-val').innerText = `${simVars.launchVelocity.toFixed(1)} km/s`;
+
+            if (!simVars.isLaunched) {
+                resetSim();
+            }
+        }
+
+        function resetSim() {
+            simVars.isLaunched = false;
+            simVars.satelliteX = canvas.width / 2;
+            simVars.satelliteY = canvas.height / 2 - simVars.launchDistance;
+            simVars.satVx = simVars.launchVelocity;
+            simVars.satVy = 0;
+            simVars.trail = [];
+
+            // UI state
+            document.getElementById('sat-status-dot').className = "w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse";
+            document.getElementById('sat-status-text').innerText = "Belum Meluncur";
+            document.getElementById('sat-status-text').className = "text-red-400 font-semibold";
+        }
+
+        function launchSatellite() {
+            simVars.isLaunched = true;
+            document.getElementById('sat-status-dot').className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping";
+            document.getElementById('sat-status-text').innerText = "Sedang Mengorbit";
+            document.getElementById('sat-status-text').className = "text-emerald-400 font-semibold";
+        }
+
+        function initSimulation() {
+            canvas = document.getElementById('simCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Atur Ukuran Canvas Adaptif Sesuai Container
+            const parent = canvas.parentElement;
+            canvas.width = parent.clientWidth;
+            canvas.height = parent.clientHeight || 450;
+
+            resetSim();
+            
+            // Mulai Loop Animasi
+            if (animId) cancelAnimationFrame(animId);
+            loopSimulation();
+        }
+
+        function stopSimulation() {
+            if (animId) {
+                cancelAnimationFrame(animId);
+                animId = null;
+            }
+        }
+
+        function loopSimulation() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // 1. Gambar Lintasan Orbit Prediksi
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, simVars.launchDistance, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // 2. Fisika Pergerakan Orbit (Gaya Gravitasi Real-time)
+            if (simVars.isLaunched) {
+                const dx = simVars.satelliteX - centerX;
+                const dy = simVars.satelliteY - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                // Gravitasi Bumi Hukum Newton: g = G * M / r^2
+                // Kita gunakan konstanta fiktif agar nyaman di layar simulator
+                const G = 250; 
+                const gravityStrength = (G * simVars.earthMass) / (distance * distance);
+
+                // Hitung arah percepatan gravitasi bumi menuju ke pusat
+                const ax = -gravityStrength * (dx / distance);
+                const ay = -gravityStrength * (dy / distance);
+
+                // Integrasi Euler Sederhana
+                simVars.satVx += ax;
+                simVars.satVy += ay;
+                simVars.satelliteX += simVars.satVx;
+                simVars.satelliteY += simVars.satVy;
+
+                // Simpan Riwayat Trail Lintasan
+                simVars.trail.push({x: simVars.satelliteX, y: simVars.satelliteY});
+                if (simVars.trail.length > 150) simVars.trail.shift();
+
+                // Cek Batasan Tabrakan (Crash)
+                if (distance < 28) { // Radius Bumi
+                    simVars.isLaunched = false;
+                    document.getElementById('sat-status-dot').className = "w-2.5 h-2.5 rounded-full bg-red-600";
+                    document.getElementById('sat-status-text').innerText = "Hancur Menabrak Bumi!";
+                    document.getElementById('sat-status-text').className = "text-rose-500 font-black";
+                }
+                // Cek Kabur Orbit (Escape Velocity)
+                if (distance > Math.max(canvas.width, canvas.height)) {
+                    simVars.isLaunched = false;
+                    document.getElementById('sat-status-dot').className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+                    document.getElementById('sat-status-text').innerText = "Lolos dari Gravitasi Bumi!";
+                    document.getElementById('sat-status-text').className = "text-amber-400 font-bold";
+                }
+            }
+
+            // 3. Render Jejak Orbit
+            if (simVars.trail.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(simVars.trail[0].x, simVars.trail[0].y);
+                for (let i = 1; i < simVars.trail.length; i++) {
+                    ctx.lineTo(simVars.trail[i].x, simVars.trail[i].y);
+                }
+                ctx.strokeStyle = 'rgba(6, 182, 212, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            // 4. Render Bumi Di Tengah
+            const earthRadius = 24 + (simVars.earthMass * 2); // Visualisasi Ukuran Bumi Relatif ke Massa
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, earthRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#2563eb';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = 'rgba(37, 99, 235, 0.6)';
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+
+            // Gambar hiasan daratan Bumi hijau sederhana
+            ctx.fillStyle = '#22c55e';
+            ctx.beginPath();
+            ctx.arc(centerX - 6, centerY - 6, 8, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(centerX + 6, centerY + 8, 6, 0, Math.PI*2);
+            ctx.fill();
+
+            // 5. Render Satelit
+            ctx.beginPath();
+            ctx.arc(simVars.satelliteX, simVars.satelliteY, 6, 0, Math.PI * 2);
+            ctx.fillStyle = '#f59e0b';
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#f59e0b';
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+
+            // Panel Tenaga Surya Satelit (Sayap Oranye Kiri Kanan)
+            ctx.fillStyle = '#06b6d4';
+            ctx.fillRect(simVars.satelliteX - 12, simVars.satelliteY - 1.5, 6, 3);
+            ctx.fillRect(simVars.satelliteX + 6, simVars.satelliteY - 1.5, 6, 3);
+
+            animId = requestAnimationFrame(loopSimulation);
+        }
+
+        // --- 7. GAME KUIS INTERAKTIF (Slide 6) ---
+        let currentQuestionIdx = 0;
+        let score = 0;
+        let fuel = 100;
+        
+        const quizData = [
+            {
+                question: "Dua benda terpisah sejauh r. Jika massa salah satu benda dilipatgandakan menjadi 2 kali lipat dari massa semula tanpa mengubah variabel lain, berapakah gaya gravitasinya saat ini?",
+                options: [
+                    "Menjadi 2 kali lipat semula",
+                    "Menjadi 4 kali lipat semula",
+                    "Menjadi 1/2 kali lipat semula",
+                    "Tetap sama tidak berubah"
+                ],
+                correct: 0,
+                feedbackCorrect: "Benar sekali! Gaya gravitasi sebanding dengan hasil kali kedua massa (F ∝ m1 · m2).",
+                feedbackIncorrect: "Kurang tepat. Ingat, Gaya gravitasi berbanding lurus dengan massa (F ∝ m)."
+            },
+            {
+                question: "Bila astronot meluncur ke angkasa luar menjauhi permukaan Bumi hingga jaraknya ke pusat Bumi menjadi 3 kali semula, gaya gravitasi bumi yang dialaminya menyusut menjadi...",
+                options: [
+                    "3 kali lipat semula",
+                    "1/3 kali lipat semula",
+                    "1/9 kali lipat semula",
+                    "6 kali lipat semula"
+                ],
+                correct: 2,
+                feedbackCorrect: "Luar biasa presisi! Jarak dikuadratkan di bagian penyebut (F ∝ 1/r²), jadi (1/3)² = 1/9 kali semula.",
+                feedbackIncorrect: "Kurang tepat. Ingat rumus F berbanding terbalik dengan kuadrat jarak (r²)."
+            },
+            {
+                question: "Jenis orbit satelit yang kecepatannya sinkron dengan kecepatan rotasi bumi sehingga posisinya tampak selalu diam jika diamati dari permukaan bumi disebut orbit...",
+                options: [
+                    "Low Earth Orbit (LEO)",
+                    "Geostationary Orbit (GEO)",
+                    "Medium Earth Orbit (MEO)",
+                    "Polar Orbit"
+                ],
+                correct: 1,
+                feedbackCorrect: "Tepat sekali! Orbit Geostasioner (GEO) sangat krusial bagi kelancaran satelit komunikasi.",
+                feedbackIncorrect: "Salah. Orbit LEO bergerak sangat cepat mengitari Bumi (~90 menit satu putaran penuh)."
+            }
+        ];
+
+        function startQuiz() {
+            document.getElementById('quiz-start-screen').classList.add('hidden');
+            document.getElementById('quiz-active-screen').classList.remove('hidden');
+            document.getElementById('quiz-result-screen').classList.add('hidden');
+            currentQuestionIdx = 0;
+            score = 0;
+            fuel = 100;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQ = quizData[currentQuestionIdx];
+            document.getElementById('quiz-index').innerText = currentQuestionIdx + 1;
+            document.getElementById('quiz-fuel').innerText = `${fuel}%`;
+            document.getElementById('quiz-question').innerText = currentQ.question;
+
+            // Muat Pilihan Opsi
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`opt-${i}`);
+                document.getElementById(`text-opt-${i}`).innerText = currentQ.options[i];
+                
+                // Reset styling kelas
+                btn.className = "quiz-opt-btn p-4 rounded-xl border border-white/10 hover:border-cyan-400 hover:bg-cyan-500/5 text-left text-sm text-slate-200 transition-all font-semibold flex items-center gap-3 w-full";
+            }
+        }
+
+        function selectAnswer(selectedIdx) {
+            const currentQ = quizData[currentQuestionIdx];
+            const isCorrect = (selectedIdx === currentQ.correct);
+
+            // Tampilkan visual feedback pada pilihan
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`opt-${i}`);
+                if (i === currentQ.correct) {
+                    btn.classList.add('border-emerald-500', 'bg-emerald-500/10', 'text-emerald-300');
+                } else if (i === selectedIdx && !isCorrect) {
+                    btn.classList.add('border-rose-500', 'bg-rose-500/10', 'text-rose-300');
+                }
+            }
+
+            if (isCorrect) {
+                score += 33.3;
+            } else {
+                fuel -= 30; // Bahan bakar roket berkurang jika jawaban salah
+                if (fuel < 0) fuel = 0;
+            }
+
+            // Berikan jeda sejenak sebelum berpindah ke pertanyaan berikutnya demi kenyamanan visual siswa
+            setTimeout(() => {
+                currentQuestionIdx++;
+                if (currentQuestionIdx < quizData.length && fuel > 0) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1800);
+        }
+
+        function showResult() {
+            document.getElementById('quiz-active-screen').classList.add('hidden');
+            document.getElementById('quiz-result-screen').classList.remove('hidden');
+
+            const finalScore = Math.round(score > 90 ? 100 : score);
+            document.getElementById('quiz-score').innerText = `${finalScore} / 100`;
+
+            const icon = document.getElementById('quiz-result-icon');
+            const title = document.getElementById('quiz-result-title');
+            const desc = document.getElementById('quiz-result-desc');
+
+            if (finalScore === 100) {
+                icon.innerText = "🏆";
+                title.innerText = "Misi Sukses Sempurna!";
+                desc.innerText = "Kerja keras yang menakjubkan! Roket berhasil menempatkan satelit ke orbit geostasioner yang sangat presisi.";
+            } else if (fuel <= 0) {
+                icon.innerText = "💥";
+                title.innerText = "Misi Gagal (Kehabisan Bahan Bakar)";
+                desc.innerText = "Sayang sekali, roket Anda kehilangan daya dorong karena beberapa navigasi perhitungan gaya gravitasi meleset.";
+            } else {
+                icon.innerText = "🛰️";
+                title.innerText = "Misi Sukses Sebagian";
+                desc.innerText = "Satelit berhasil mengudara, namun posisinya sedikit melenceng ke orbit yang tidak terlalu stabil.";
+            }
+        }
+
+        function resetQuiz() {
+            startQuiz();
+        }
+
+
+        // --- 8. GLOBAL WINDOW LOAD INIT ---
+        window.onload = function() {
+            createStars();
+            updateSlideUI();
+        };
+
+        // Responsif terhadap rotasi layar handphone / tablet
+        window.onresize = function() {
+            createStars();
+            if (currentSlide === 5) {
+                initSimulation();
+            }
+        };
+
+    </script>
+</body>
+</html>
